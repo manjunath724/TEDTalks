@@ -1,0 +1,74 @@
+<center><h1>TED Talks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="10">Select Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <% @tags.each_with_index do |t, i| %>
+        <td><%= check_box_tag 'tag_ids[]', t.id %><%= t.name %></td>
+        <% if !i.zero? && i % 12 == 0 %>
+          </tr><tr>
+        <% end %>
+      <% end %>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+<button id="tag">Populate List</button>
+
+<hr>
+
+<div id="talk_list"></div>
+
+</center>
+
+<script type="text/javascript">
+  var tags = null;
+  var ted_talks_url = "<%= render_ted_talks_path %>";
+
+  $('#tag').click(function() {
+    tags = $("input[name='tag_ids[]']:checked").map(function () {
+      return this.value;
+    }).get();
+
+    if(tags.length === 0) {
+      alert('Please select tags');
+    } else {
+      get_data(ted_talks_url, { tag_ids: tags }, function(response) {
+        $('#talk_list').html(response);
+      }, 'html');
+    }
+  });
+
+  $('body').on('click', '.filter-result', function() {
+    invoke_talks();
+  });
+
+  $('body').on('click', '.pagination a', function(e) {
+    e.preventDefault();
+    var page = 1;
+    try {
+      page = $(this).attr('href').split('?')[1].split('page=')[1].split('&')[0];
+    } catch(e) {
+      page = 1;
+    }
+    invoke_talks(page);
+  });
+
+  function invoke_talks(page) {
+    var search_text = $('#search_text').val();
+    var event_id = $('#event').find(":selected").val();
+    var sort_by = $('#sort_by').find(":selected").val();
+    var order_by = $('#order_by').find(":selected").val();
+    var page = page || $('.pagination').find("span.current").text();
+    get_data(ted_talks_url, { tag_ids: tags, search_text: search_text, event_id: event_id, sort_by: sort_by, order_by: order_by, page: page }, function(response) {
+      $('#talk_list').html(response);
+    }, 'html');
+  }
+</script>

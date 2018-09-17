@@ -1,0 +1,54 @@
+<select id="event">
+  <% @search.facet(:event_id).rows.map(&:value).each do |e| %>
+    <% event = Event.find(e) %>
+    <option value="<%= event.id %>"><%= event.name %></option>
+  <% end %>
+</select>
+
+<input type="text" id="search_text" />
+
+<select id="sort_by">
+  <option value="views">Views</option>
+  <option value="published_date">Published Date</option>
+</select>
+
+<select id="order_by">
+  <option value="desc">Desc</option>
+  <option value="asc">Asc</option>
+</select>
+
+<button class="filter-result">Search/Filter Result</button>
+
+<br>
+
+<table>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Title</th>
+      <th>Speaker</th>
+      <th>Description</th>
+      <th>Views</th>
+      <th>Published At</th>
+      <th>Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @talks.each_with_index do |t, i| %>
+      <tr>
+        <td><%= t.event.name %></td>
+        <td><%= t.title %></td>
+        <td><%= t.speaker.name %></td>
+        <td><%= t.description %></td>
+        <td><%= t.views %></td>
+        <td><%= t.published_date.strftime("%d/%m/%Y - %I:%M %p") %></td>
+        <td><%= link_to t.name, t.url, target: '_blank' %></td>
+      </tr>
+    <% end %>
+    <% if @talks.blank? %>
+      <tr><td colspan="7">No records found!</td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @talks, class: 'pagination' %>
